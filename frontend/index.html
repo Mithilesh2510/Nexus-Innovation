@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supply Watch — Healthcare Supply Chain Intelligence 2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="js/chart.umd.min.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="brand-wrap">
+    <a href="#" class="brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+      </div>
+      <div class="brand-title">
+        Supply Watch
+        <span class="version-tag">2.0 PRO</span>
+      </div>
+    </a>
+    <div class="status-badge">
+      <span class="live-dot"></span>
+      <span id="headerLiveStatus">312 Nodes Live</span>
+    </div>
+  </div>
+
+  <div class="header-controls">
+    <div class="search-box">
+      <span class="search-icon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </span>
+      <input type="text" id="globalSearchInput" placeholder="Search medicine, SKU, category (/)">
+    </div>
+
+    <select id="branchFilter">
+      <option value="">All Facilities (3 Branches)</option>
+    </select>
+
+    <select id="categoryFilter">
+      <option value="">All Categories</option>
+    </select>
+
+    <select id="critFilter">
+      <option value="">All Criticalities</option>
+      <option value="Critical">Critical</option>
+      <option value="High">High</option>
+      <option value="Medium">Medium</option>
+      <option value="Low">Low</option>
+    </select>
+
+    <button id="auditModalBtn" class="secondary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+      Audit Report
+    </button>
+
+    <button id="refreshBtn" title="Recompute Monte Carlo Simulation">
+      <svg id="refreshIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+      Sync Engine
+    </button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- Executive KPI Strip -->
+  <div class="kpi-row" id="kpiRow">
+    <div class="kpi-card cyan">
+      <div class="kpi-label">Monitored Pairs <span>SKUs</span></div>
+      <div class="kpi-value" id="kpiPairs">—</div>
+      <div class="kpi-sub" id="kpiPairsSub">Across 3 hospital branches</div>
+    </div>
+    <div class="kpi-card critical">
+      <div class="kpi-label">Critical Risk <span>Urgent</span></div>
+      <div class="kpi-value" id="kpiCritical">—</div>
+      <div class="kpi-sub">Service target &gt; 99%</div>
+    </div>
+    <div class="kpi-card high">
+      <div class="kpi-label">High Risk <span>Alert</span></div>
+      <div class="kpi-value" id="kpiHigh">—</div>
+      <div class="kpi-sub">Priority replenishment</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Avg Stockout Prob <span>Simulated</span></div>
+      <div class="kpi-value" id="kpiStockout">—</div>
+      <div class="kpi-sub">Monte Carlo 5k passes</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Overdue PO Units <span>Stuck</span></div>
+      <div class="kpi-value" id="kpiOverdue">—</div>
+      <div class="kpi-sub">Pending past expected date</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Expiry Waste Units <span>FEFO Loss</span></div>
+      <div class="kpi-value" id="kpiExpiry">—</div>
+      <div class="kpi-sub" id="kpiExpirySub">Projected unconsumed</div>
+    </div>
+  </div>
+
+  <!-- Main Split Workspace -->
+  <div class="main-split">
+
+    <!-- Left Catalog Table -->
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">
+          Medicine Supply Risk Catalog
+          <span class="panel-badge" id="rowCount">Loading…</span>
+        </div>
+        <div style="font-size:11px; color:var(--text-dim);">Click row to inspect</div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th data-sort="name">Medicine &amp; Category</th>
+              <th data-sort="branch_id">Facility</th>
+              <th data-sort="criticality">Tier</th>
+              <th data-sort="stockout_probability_pct">Stockout Prob</th>
+              <th data-sort="days_of_cover_p50">Cover (d)</th>
+              <th data-sort="composite_risk_score">Risk Score</th>
+            </tr>
+          </thead>
+          <tbody id="riskTableBody">
+            <tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-dim);">Loading optimized risk engine…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right SKU Intelligence & What-If Studio -->
+    <div class="panel" id="detailPanel">
+      <div class="panel-head">
+        <div class="panel-title">
+          SKU Intelligence &amp; Simulation
+          <span class="panel-badge" id="detailSub">—</span>
+        </div>
+        <div id="detailStatusPill"></div>
+      </div>
+
+      <div class="detail-empty" id="detailEmpty">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:12px; color:var(--text-dim);"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+        <p>Select any medicine from the catalog on the left to analyze probabilistic forecasts, historical demand, anomaly flags, and run live what-if surges.</p>
+      </div>
+
+      <div class="detail-body" id="detailBody" style="display:none;">
+        
+        <!-- Metric Grid -->
+        <div class="stat-grid-4">
+          <div class="mini-stat">
+            <div class="k">On-Hand Stock</div>
+            <div class="v num-mono" id="detStock">—</div>
+          </div>
+          <div class="mini-stat">
+            <div class="k">Days of Cover</div>
+            <div class="v num-mono" id="detCover">—</div>
+          </div>
+          <div class="mini-stat">
+            <div class="k">Daily Demand</div>
+            <div class="v num-mono" id="detDemand">—</div>
+          </div>
+          <div class="mini-stat">
+            <div class="k">Lead Time</div>
+            <div class="v num-mono" id="detLead" style="font-size:12px;">—</div>
+          </div>
+        </div>
+
+        <div class="stat-grid-2">
+          <div class="mini-stat">
+            <div class="k">Supplier Reliability</div>
+            <div class="v num-mono" id="detSupplierRel" style="color:var(--cyan);">—</div>
+          </div>
+          <div class="mini-stat">
+            <div class="k">Overdue Inbound Units</div>
+            <div class="v num-mono" id="detOverdueUnits" style="color:var(--high);">—</div>
+          </div>
+        </div>
+
+        <!-- Demand Forecast Chart -->
+        <div>
+          <div class="chart-controls-strip">
+            <div class="chart-badges">
+              <span class="model-pill" id="chartModelPill">XGBoost Quantile Regressor</span>
+              <span class="trend-sub" id="detTrendDirection">Trend: —</span>
+            </div>
+            <div class="chart-filter-pills" id="chartFilterPills">
+              <button class="pill-btn active" data-filter="all">All Bands</button>
+              <button class="pill-btn" data-filter="median">Expected (p50)</button>
+              <button class="pill-btn" data-filter="confidence">80% CI (p10-p90)</button>
+              <button class="pill-btn" data-filter="hazard">Hazard (p95)</button>
+            </div>
+          </div>
+          <div class="chart-box">
+            <canvas id="forecastChart"></canvas>
+          </div>
+        </div>
+
+        <!-- AI Narrative -->
+        <div class="ai-rationale-box">
+          <div class="ai-tag">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+            Clinical Supply Chain Rationale
+          </div>
+          <div id="explainText">Analyzing operational metrics…</div>
+        </div>
+
+        <!-- Anomaly Stream -->
+        <div>
+          <div style="font-size:11.5px; font-weight:600; color:var(--text-muted); margin-bottom:6px;">EWMA + CUSUM Control-Chart Flags</div>
+          <div id="anomalyList" style="display:flex; flex-direction:column; gap:6px;"></div>
+        </div>
+
+        <!-- What-If Surge Studio -->
+        <div class="whatif-studio">
+          <div style="font-weight:700; font-size:12.5px; margin-bottom:12px; color:var(--cyan); display:flex; align-items:center; gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            What-If Scenario Simulator
+          </div>
+          <div class="whatif-row">
+            <label>Surge Demand Multiplier</label>
+            <input type="range" id="demandSlider" min="1" max="4" step="0.1" value="1">
+            <span class="slider-val" id="demandVal">1.0×</span>
+          </div>
+          <div class="whatif-row">
+            <label>Extra Supplier Delay</label>
+            <input type="range" id="leadSlider" min="0" max="21" step="1" value="0">
+            <span class="slider-val" id="leadVal">+0d</span>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center; margin-top:6px;">
+            <button id="simulateBtn" style="flex:1;">Run Live Simulation</button>
+            <button id="resetSimBtn" class="secondary" style="display:none;">Reset</button>
+          </div>
+
+          <div class="whatif-sim-res" id="whatifResult" style="display:none;">
+            <div class="res-box">
+              <div class="rk">Simulated Stockout</div>
+              <div class="rv" id="simStockout" style="color:var(--critical);">—</div>
+            </div>
+            <div class="res-box">
+              <div class="rk">Simulated Risk</div>
+              <div class="rv" id="simRisk" style="color:var(--high);">—</div>
+            </div>
+            <div class="res-box">
+              <div class="rk">Simulated Cover</div>
+              <div class="rv" id="simCover">—</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Enterprise Operations Hub (Tabs) -->
+  <div class="panel">
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-tab="transfers">Inter-Facility Transfers (<span id="transferBadgeCount">0</span>)</button>
+      <button class="tab-btn" data-tab="procurement">Purchase Orders &amp; Optimizer</button>
+      <button class="tab-btn" data-tab="suppliers">Supplier Intelligence</button>
+      <button class="tab-btn" data-tab="stress">Macro Stress-Tester</button>
+      <button class="tab-btn" data-tab="validation">Anomaly Sentinel (Control-Chart)</button>
+    </div>
+
+    <!-- Tab 1: Transfers -->
+    <div class="tab-pane active" id="tab-transfers">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div>
+          <div style="font-weight:600; font-size:13.5px;">Proactive Near-Expiry Redistribution</div>
+          <div style="font-size:12px; color:var(--text-dim);">Move expiring surplus stock to facilities at stockout risk before placing costly new purchase orders.</div>
+        </div>
+        <button id="reloadTransfersBtn" class="secondary" style="font-size:11.5px;">Refresh Opportunities</button>
+      </div>
+      <div id="transfersList" class="transfers-grid">
+        <div style="color:var(--text-dim); padding:20px;">Scanning facilities for surplus opportunities…</div>
+      </div>
+
+      <!-- Dispatched transfers log -->
+      <div style="margin-top:28px;">
+        <div style="font-weight:600; font-size:13px; margin-bottom:8px; color:var(--text-muted);">Active In-Transit Dispatches</div>
+        <div id="dispatchedTransfersLog" style="font-size:12px; color:var(--text-dim);">No transfers dispatched yet this session. Click "Dispatch Transfer" above to initiate.</div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Procurement -->
+    <div class="tab-pane" id="tab-procurement">
+      <div style="display:flex; gap:12px; align-items:center; margin-bottom:16px; flex-wrap:wrap;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <label style="font-size:12.5px; color:var(--text-muted);">Budget Constraint ($)</label>
+          <input type="number" id="budgetInput" placeholder="e.g. 150000" style="width:160px;">
+        </div>
+        <button id="loadProcurementBtn">Compute Recommendations</button>
+        <button id="dispatchAllPoBtn" class="secondary">Create &amp; Dispatch POs</button>
+        <button id="exportPoCsvBtn" class="secondary">Export CSV</button>
+        <span id="spendSub" style="margin-left:auto; font-family:var(--font-mono); font-size:13px; color:var(--cyan); font-weight:600;"></span>
+      </div>
+
+      <div id="procurementTableWrap">
+        <div style="color:var(--text-dim); padding:30px; text-align:center;">Click "Compute Recommendations" to generate a budget-optimized purchase order matrix.</div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Suppliers -->
+    <div class="tab-pane" id="tab-suppliers">
+      <div style="margin-bottom:16px;">
+        <div style="font-weight:600; font-size:13.5px;">Supplier Reliability &amp; Lead Time Intelligence</div>
+        <div style="font-size:12px; color:var(--text-dim);">Vendor performance grading evaluated across delivery records, lead-time variance, and stuck pending orders.</div>
+      </div>
+      <div id="suppliersGrid" class="supplier-grid">
+        <div style="color:var(--text-dim); padding:20px;">Loading supplier performance profiles…</div>
+      </div>
+    </div>
+
+    <!-- Tab 4: Stress Tester -->
+    <div class="tab-pane" id="tab-stress">
+      <div style="margin-bottom:16px;">
+        <div style="font-weight:600; font-size:13.5px;">Macro System-Wide Scenario Stress-Tester</div>
+        <div style="font-size:12px; color:var(--text-dim);">Simulate large-scale epidemic waves, port strikes, and cold-chain disruptions across all 104 hospital medicines simultaneously.</div>
+      </div>
+
+      <div class="scenario-presets">
+        <div class="preset-card" onclick="runPresetStress('Epidemic Respiratory Surge', 2.2, 3.0)">
+          <div class="preset-title">
+            <span style="color:var(--critical);">●</span> Epidemic Respiratory Surge
+          </div>
+          <div class="preset-desc">Demand jumps 2.2× across antibiotics and emergency drugs with a 3-day supplier delay.</div>
+        </div>
+
+        <div class="preset-card" onclick="runPresetStress('Port Strike &amp; Logistics Delay', 1.2, 8.0)">
+          <div class="preset-title">
+            <span style="color:var(--high);">●</span> Major Logistics Disruption
+          </div>
+          <div class="preset-desc">Lead times surge +8 days across all vendors due to regional shipping embargoes.</div>
+        </div>
+
+        <div class="preset-card" onclick="runPresetStress('Severe Dual Shock Event', 2.8, 10.0)">
+          <div class="preset-title">
+            <span style="color:var(--critical);">●</span> Severe Dual Shock Event
+          </div>
+          <div class="preset-desc">Mass casualty surge (2.8× demand) coupled with a 10-day supplier freeze.</div>
+        </div>
+      </div>
+
+      <div id="stressResultContainer" style="display:none; margin-top:20px;">
+        <div style="font-weight:700; font-size:13px; margin-bottom:12px; color:var(--cyan);" id="stressScenarioTitle">Scenario Results</div>
+        <div class="kpi-row" id="stressKpiRow" style="margin-bottom:20px;">
+          <div class="kpi-card critical">
+            <div class="kpi-label">Critical SKUs After</div>
+            <div class="kpi-value" id="stressCritVal">—</div>
+            <div class="kpi-sub" id="stressCritDelta">—</div>
+          </div>
+          <div class="kpi-card high">
+            <div class="kpi-label">High Risk SKUs After</div>
+            <div class="kpi-value" id="stressHighVal">—</div>
+            <div class="kpi-sub" id="stressHighDelta">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Avg Stockout %</div>
+            <div class="kpi-value" id="stressStockoutVal">—</div>
+            <div class="kpi-sub" id="stressStockoutDelta">—</div>
+          </div>
+        </div>
+        <div style="font-weight:600; font-size:12.5px; margin-bottom:8px;">Top 10 Most Vulnerable SKUs Under This Stress Scenario:</div>
+        <div id="stressVulnerableTable"></div>
+      </div>
+    </div>
+
+    <!-- Tab 5: Validation -->
+    <div class="tab-pane" id="tab-validation">
+      <div style="margin-bottom:16px;">
+        <div style="font-weight:600; font-size:13.5px;">Control-Chart Detector Empirical Validation</div>
+        <div style="font-size:12px; color:var(--text-dim);">Evaluated directly against ground-truth labels (<span style="font-family:var(--font-mono);">usage_anomalies.csv</span>) with ±1 day tolerance.</div>
+      </div>
+      <div id="validationContent">
+        <div style="color:var(--text-dim); padding:20px;">Validating detector against labeled anomalies…</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Audit Modal -->
+<div class="modal-backdrop" id="auditModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div style="font-weight:700; font-size:16px; display:flex; align-items:center; gap:8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+        Executive Supply Chain Audit Report
+      </div>
+      <button class="secondary" id="closeAuditModalBtn" style="padding:4px 10px;">✕</button>
+    </div>
+    <div id="auditModalBody">
+      <div style="text-align:center; padding:30px; color:var(--text-dim);">Generating audit report…</div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer"></div>
+
+<footer>
+  Built for Healthcare Supply Chain Intelligence · Probabilistic Demand Forecasting &amp; Monte Carlo Risk Architecture · Version 2.0
+</footer>
+
+<!-- Application Scripts -->
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/modules/ui.js"></script>
+<script src="js/modules/riskTable.js"></script>
+<script src="js/modules/detailDrawer.js"></script>
+<script src="js/modules/operations.js"></script>
+<script src="js/modules/intelligence.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
