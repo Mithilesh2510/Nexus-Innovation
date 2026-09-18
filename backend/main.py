@@ -17,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from data_loader import STORE
 from state import get_all_risk, risk_to_dict, _cache, CACHE_TTL_SECONDS
 from routers import (
+    auth as auth_router,
     dashboard,
     inventory,
     anomalies,
@@ -41,6 +42,7 @@ app.add_middleware(
 )
 
 # Mount modular routers
+app.include_router(auth_router.router)
 app.include_router(dashboard.router)
 app.include_router(inventory.router)
 app.include_router(anomalies.router)

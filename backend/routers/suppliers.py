@@ -1,15 +1,23 @@
 """
 Supplier intelligence and scorecard analytics routes.
+
+Data-model note: suppliers.csv and procurement_history.csv have no branch_id column
+-- vendor contracts and delivery records are recorded network-wide, not per hospital,
+which is a legitimate real-world model (many hospital networks negotiate and purchase
+centrally). There is nothing to branch-scope here; this endpoint still requires login
+like every other endpoint, but every authenticated user (branch or admin) sees the
+same shared vendor scorecards.
 """
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 import pandas as pd
 from data_loader import STORE
+from auth import get_current_user
 
 router = APIRouter(prefix="/api/suppliers", tags=["suppliers"])
 
 
 @router.get("/intelligence")
-def supplier_intelligence():
+def supplier_intelligence(user: dict = Depends(get_current_user)):
     """Detailed supplier performance scorecards derived from historical procurement data."""
     now = pd.Timestamp.now()
     proc = STORE.procurement.copy()

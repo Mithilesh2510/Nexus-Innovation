@@ -82,15 +82,21 @@ def detect_anomalies(series: pd.Series, baseline_window: int = 60, baseline_lag:
 
 
 
-def validate_detector(store, sample_size: int | None = None):
+def validate_detector(store, sample_size: int | None = None, branch_id: str | None = None):
     """
     Runs the detector at the (medicine, branch) grain -- matching how usage_anomalies.csv
     ground truth is labeled -- and checks how many labeled anomaly dates were caught within
     +/-1 day (control charts often flag the day after a sustained spike begins, which is
     still a correct catch for our purposes).
+
+    branch_id: if given, restricts validation to that branch's (hospital's) labeled
+    anomalies only -- required for branch-scoped callers so they never see another
+    facility's ground-truth data or recall numbers.
     """
     truth = store.anomalies_truth.copy()
     truth["date"] = pd.to_datetime(truth["date"])
+    if branch_id:
+        truth = truth[truth.branch_id == branch_id]
     pairs = truth[["medicine_id", "branch_id"]].drop_duplicates().values.tolist()
     if sample_size:
         pairs = pairs[:sample_size]

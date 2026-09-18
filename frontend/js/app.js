@@ -16,6 +16,12 @@ async function loadMetadata() {
       opt.textContent = `${b.branch_id} — ${b.name}`;
       bSel.appendChild(opt);
     });
+    // Branch accounts only ever get their own facility back from /api/branches
+    // (server-enforced) -- reflect that as the selected value instead of the
+    // generic "All Facilities" placeholder, which no longer applies to them.
+    if (authState.role === "branch" && authState.branchId) {
+      bSel.value = authState.branchId;
+    }
 
     const cSel = document.getElementById("categoryFilter");
     categories.forEach(c => {
@@ -157,13 +163,18 @@ document.addEventListener("keydown", e => {
   }
 });
 
-// App Initialization
-(async function init() {
+// App Initialization -- called by auth.js once the user is logged in, not on
+// script load, so nothing fetches data before a token exists.
+async function initApp() {
   await loadMetadata();
   await loadSummary();
   await loadRiskTable();
-  loadTransfers();
+  if (authState.role === "admin") {
+    // Transfers and the macro stress-tester are network-wide (cross-hospital)
+    // features restricted to the admin account on the backend.
+    loadTransfers();
+    loadDispatchedTransfersLog();
+  }
   loadSuppliers();
   loadValidation();
-  loadDispatchedTransfersLog();
-})();
+}

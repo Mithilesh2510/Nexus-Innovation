@@ -1,28 +1,34 @@
 """
-Dashboard and metadata API routes.
+Dashboard and metadata API routes. Every route requires login; results are scoped
+to the caller's branch (hospital) unless the caller is the network-wide admin.
 """
-import time
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from data_loader import STORE
-from state import get_all_risk, _cache
+from state import get_all_risk, cache_age_seconds
+from auth import get_current_user, resolve_branch_scope
 
 router = APIRouter(prefix="/api", tags=["dashboard"])
 
 
 @router.get("/branches")
-def get_branches():
+def get_branches(user: dict = Depends(get_current_user)):
+    if user["role"] == "branch":
+        return STORE.branches[STORE.branches.branch_id == user["branch_id"]].to_dict(orient="records")
     return STORE.branches.to_dict(orient="records")
 
 
 @router.get("/categories")
-def get_categories():
+def get_categories(user: dict = Depends(get_current_user)):
+    # Medicine categories are catalog metadata (medicines.csv has no branch_id), so
+    # this list is identical for every branch -- nothing to scope.
     categories = sorted(STORE.medicines["category"].unique().tolist())
     return categories
 
 
 @router.get("/dashboard/summary")
-def dashboard_summary():
-    all_risk = get_all_risk()
+def dashboard_summary(user: dict = Depends(get_current_user)):
+    branch_id = resolve_branch_scope(user, None)
+    all_risk = get_all_risk(branch_id=branch_id)
     n_critical = sum(1 for r in all_risk if r.risk_tier == "Critical")
     n_high = sum(1 for r in all_risk if r.risk_tier == "High")
     n_moderate = sum(1 for r in all_risk if r.risk_tier == "Moderate")
@@ -39,6 +45,15 @@ def dashboard_summary():
         r.expiry_waste_units * cost_map.get(r.medicine_id, 5.0) for r in all_risk
     )
 
+    dispatched_transfers = STORE.dispatched_transfers
+    dispatched_orders = STORE.dispatched_orders
+    if user["role"] == "branch":
+        dispatched_transfers = [
+            t for t in dispatched_transfers
+            if t.get("from_branch") == user["branch_id"] or t.get("to_branch") == user["branch_id"]
+        ]
+        dispatched_orders = [o for o in dispatched_orders if o.get("branch_id") == user["branch_id"]]
+
     return {
         "total_skus_tracked": len(STORE.medicines),
         "total_branch_sku_pairs": len(all_risk),
@@ -48,7 +63,7 @@ def dashboard_summary():
         "total_projected_expiry_waste_units": total_expiry_waste,
         "total_inventory_value": round(total_inventory_value, 2),
         "total_expiry_value": round(total_expiry_value, 2),
-        "dispatched_transfers_count": len(STORE.dispatched_transfers),
-        "dispatched_orders_count": len(STORE.dispatched_orders),
-        "cache_age_seconds": round(time.time() - _cache["computed_at"], 1),
+        "dispatched_transfers_count": len(dispatched_transfers),
+        "dispatched_orders_count": len(dispatched_orders),
+        "cache_age_seconds": cache_age_seconds(branch_id),
     }

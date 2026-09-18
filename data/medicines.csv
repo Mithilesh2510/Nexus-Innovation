@@ -1,0 +1,105 @@
+medicine_id,name,category,criticality,base_daily_usage,reorder_point,target_max_stock,shelf_life_days,unit_cost
+MED001,Amoxicillin 1g,Emergency Drugs,Critical,32.09,381.0,863.0,540,128.86
+MED002,Paracetamol Unit,Emergency Drugs,Critical,39.15,309.0,1331.0,585,118.02
+MED003,Ibuprofen Box,Emergency Drugs,Critical,17.98,229.0,609.0,280,96.76
+MED004,Ceftriaxone 10ml,Emergency Drugs,Critical,12.95,166.0,487.0,230,10.04
+MED005,Metformin 1g,Emergency Drugs,Critical,31.53,418.0,1279.0,565,145.62
+MED006,Insulin 1g,Emergency Drugs,Critical,11.81,95.0,457.0,380,7.05
+MED007,Epinephrine Box,Emergency Drugs,Critical,31.07,298.0,1068.0,382,49.21
+MED008,Atorvastatin 500mg,Emergency Drugs,Critical,11.63,100.0,447.0,435,71.62
+MED009,Losartan Unit,Emergency Drugs,Critical,20.3,186.0,845.0,268,105.19
+MED010,Omeprazole 1g,Emergency Drugs,Critical,33.17,391.0,922.0,643,43.61
+MED011,Azithromycin 500mg,Emergency Drugs,Critical,12.0,140.0,469.0,623,118.15
+MED012,Salbutamol 1g,Emergency Drugs,Critical,32.33,258.0,882.0,486,85.53
+MED013,Diazepam 1g,Antibiotics,High,56.79,702.0,2141.0,843,85.0
+MED014,Morphine 10ml,Antibiotics,High,48.75,352.0,1645.0,431,45.94
+MED015,Furosemide 1g,Antibiotics,High,25.02,216.0,655.0,567,128.08
+MED016,Warfarin 250mg,Antibiotics,High,29.7,324.0,1208.0,1035,99.46
+MED017,Heparin 1g,Antibiotics,High,56.5,462.0,1438.0,664,122.2
+MED018,Vancomycin Unit,Antibiotics,High,16.3,133.0,571.0,929,69.55
+MED019,Cefixime Unit,Antibiotics,High,20.66,200.0,641.0,728,67.2
+MED020,Doxycycline 1g,Antibiotics,High,54.12,424.0,2394.0,808,13.6
+MED021,Prednisolone Unit,Antibiotics,High,73.6,1015.0,2986.0,726,40.25
+MED022,Hydrocortisone 1g,Antibiotics,High,60.18,462.0,2591.0,941,41.2
+MED023,Tramadol 250mg,Antibiotics,High,41.9,463.0,1196.0,879,46.24
+MED024,Diclofenac Unit,Antibiotics,High,69.96,701.0,2627.0,379,108.06
+MED025,Amlodipine 10ml,Antibiotics,High,50.89,504.0,1315.0,434,13.12
+MED026,Ranitidine 250mg,Antibiotics,High,44.58,344.0,1638.0,502,22.11
+MED027,Ondansetron Box,Antibiotics,High,21.94,207.0,808.0,584,87.37
+MED028,Metronidazole Box,Antibiotics,High,11.6,145.0,309.0,475,72.6
+MED029,Ciprofloxacin 1g,Antibiotics,High,44.07,485.0,1519.0,855,140.71
+MED030,Clopidogrel 250mg,Antibiotics,High,28.69,289.0,730.0,1062,78.34
+MED031,Enoxaparin Box,Antibiotics,High,67.84,738.0,1843.0,372,21.47
+MED032,Albumin 250mg,Antibiotics,High,57.06,690.0,2304.0,451,99.08
+MED033,Packed RBC Box,Blood Products,Critical,5.37,39.0,194.0,34,34.92
+MED034,Fresh Frozen Plasma Unit,Blood Products,Critical,11.16,103.0,492.0,27,121.33
+MED035,Platelets 10ml,Blood Products,Critical,9.4,127.0,266.0,34,38.77
+MED036,Whole Blood 1g,Blood Products,Critical,3.99,53.0,159.0,27,148.86
+MED037,MMR Vaccine Box,Blood Products,Critical,22.6,208.0,914.0,25,78.07
+MED038,Hepatitis B Vaccine 1g,Blood Products,Critical,17.56,215.0,531.0,30,14.62
+MED039,Tetanus Vaccine 250mg,Chronic Disease Meds,High,94.63,1213.0,2656.0,711,18.85
+MED040,COVID-19 Vaccine 10ml,Chronic Disease Meds,High,30.24,253.0,944.0,499,131.25
+MED041,Influenza Vaccine Box,Chronic Disease Meds,High,81.08,649.0,2050.0,482,75.36
+MED042,BCG Vaccine 500mg,Chronic Disease Meds,High,34.52,271.0,1213.0,467,101.81
+MED043,Rabies Vaccine 10ml,Chronic Disease Meds,High,74.01,935.0,2909.0,645,30.37
+MED044,Surgical Gloves 500mg,Chronic Disease Meds,High,77.81,1050.0,2564.0,667,19.0
+MED045,N95 Masks 1g,Chronic Disease Meds,High,40.58,556.0,1247.0,413,99.6
+MED046,Surgical Gowns 500mg,Chronic Disease Meds,High,93.61,1071.0,2538.0,547,83.5
+MED047,IV Cannula 1g,Chronic Disease Meds,High,26.93,301.0,1176.0,639,144.95
+MED048,Syringes 5ml 1g,Chronic Disease Meds,High,83.37,594.0,2266.0,523,117.82
+MED049,Gauze Rolls Unit,Chronic Disease Meds,High,85.5,916.0,3174.0,456,35.28
+MED050,Alcohol Swabs 10ml,Chronic Disease Meds,High,88.76,854.0,2975.0,640,62.18
+MED051,Face Shields Box,Chronic Disease Meds,High,70.41,615.0,2094.0,717,68.36
+MED052,Sanitizer 500ml Unit,Chronic Disease Meds,High,78.41,585.0,2892.0,672,16.24
+MED053,Suture Kits Unit,Chronic Disease Meds,High,27.42,220.0,1191.0,435,46.9
+MED054,Catheters 250mg,Chronic Disease Meds,High,29.07,227.0,739.0,422,23.47
+MED055,IV Fluid NS 500ml 250mg,Chronic Disease Meds,High,19.71,220.0,761.0,436,8.48
+MED056,IV Fluid RL 500ml 250mg,Chronic Disease Meds,High,48.46,636.0,2036.0,668,75.93
+MED057,Oxygen Masks 250mg,Analgesics,Medium,24.35,213.0,887.0,725,35.89
+MED058,ECG Electrodes 500mg,Analgesics,Medium,61.63,657.0,1666.0,571,56.36
+MED059,Amoxicillin 500mg,Analgesics,Medium,103.35,795.0,4327.0,443,138.76
+MED060,Paracetamol Box,Analgesics,Medium,110.27,1374.0,4174.0,540,120.4
+MED061,Ibuprofen 500mg,Analgesics,Medium,97.9,1038.0,4127.0,905,80.64
+MED062,Ceftriaxone 1g,Analgesics,Medium,66.28,588.0,1842.0,938,96.11
+MED063,Metformin 1g,Analgesics,Medium,67.79,649.0,2191.0,485,35.27
+MED064,Insulin 1g,Analgesics,Medium,52.75,479.0,2320.0,682,103.02
+MED065,Epinephrine 1g,Analgesics,Medium,111.63,1200.0,4685.0,989,49.59
+MED066,Atorvastatin Unit,Analgesics,Medium,85.26,975.0,2623.0,512,80.14
+MED067,Losartan 250mg,Analgesics,Medium,93.49,1218.0,2584.0,390,104.37
+MED068,Omeprazole 500mg,Analgesics,Medium,81.44,618.0,3560.0,830,108.99
+MED069,Azithromycin Box,Analgesics,Medium,33.74,376.0,1372.0,1066,120.23
+MED070,Salbutamol Box,Analgesics,Medium,99.51,1108.0,2677.0,1045,38.38
+MED071,Diazepam 250mg,PPE / Consumables,Medium,265.66,2924.0,9117.0,913,84.96
+MED072,Morphine Unit,PPE / Consumables,Medium,232.92,2433.0,8616.0,1527,119.99
+MED073,Furosemide 500mg,PPE / Consumables,Medium,375.93,2862.0,14345.0,1656,18.01
+MED074,Warfarin Unit,PPE / Consumables,Medium,196.51,1835.0,8444.0,1740,100.85
+MED075,Heparin 250mg,PPE / Consumables,Medium,316.89,2916.0,8921.0,1425,54.95
+MED076,Vancomycin Box,PPE / Consumables,Medium,101.72,985.0,4028.0,824,65.97
+MED077,Cefixime Box,PPE / Consumables,Medium,243.55,2522.0,7922.0,1770,117.16
+MED078,Doxycycline Unit,PPE / Consumables,Medium,395.32,3095.0,16608.0,735,142.7
+MED079,Prednisolone 500mg,PPE / Consumables,Medium,272.98,3222.0,6892.0,864,88.44
+MED080,Hydrocortisone Unit,PPE / Consumables,Medium,209.01,2134.0,7074.0,1521,44.66
+MED081,Tramadol Box,PPE / Consumables,Medium,155.67,1210.0,6996.0,1295,117.3
+MED082,Diclofenac 250mg,PPE / Consumables,Medium,357.72,2771.0,16091.0,1480,125.62
+MED083,Amlodipine 10ml,PPE / Consumables,Medium,282.99,3758.0,7239.0,879,14.02
+MED084,Ranitidine 500mg,PPE / Consumables,Medium,134.29,1126.0,5803.0,1226,116.63
+MED085,Ondansetron 500mg,PPE / Consumables,Medium,279.69,2059.0,10382.0,1726,1.31
+MED086,Metronidazole 250mg,PPE / Consumables,Medium,330.52,2446.0,13558.0,1785,127.49
+MED087,Ciprofloxacin Unit,Vaccines,Critical,28.19,363.0,728.0,123,104.87
+MED088,Clopidogrel 500mg,Vaccines,Critical,10.04,123.0,378.0,121,75.93
+MED089,Enoxaparin 500mg,Vaccines,Critical,26.28,219.0,799.0,213,110.33
+MED090,Albumin Box,Vaccines,Critical,22.75,168.0,849.0,234,91.93
+MED091,Packed RBC Box,Vaccines,Critical,6.06,50.0,163.0,150,106.58
+MED092,Fresh Frozen Plasma Box,Vaccines,Critical,9.59,120.0,362.0,193,69.05
+MED093,Platelets 500mg,Vaccines,Critical,19.31,176.0,706.0,213,141.93
+MED094,Whole Blood 10ml,Vaccines,Critical,22.49,181.0,791.0,161,141.12
+MED095,MMR Vaccine 1g,General OTC,Low,30.2,240.0,923.0,1032,18.32
+MED096,Hepatitis B Vaccine 1g,General OTC,Low,25.24,289.0,839.0,814,91.84
+MED097,Tetanus Vaccine 250mg,General OTC,Low,30.44,281.0,783.0,979,88.45
+MED098,COVID-19 Vaccine 1g,General OTC,Low,30.92,340.0,1123.0,713,34.23
+MED099,Influenza Vaccine 10ml,General OTC,Low,45.1,416.0,1838.0,764,98.04
+MED100,BCG Vaccine 1g,General OTC,Low,37.46,357.0,1321.0,508,94.09
+MED101,Rabies Vaccine Box,General OTC,Low,46.84,493.0,1658.0,773,138.2
+MED102,Surgical Gloves 250mg,General OTC,Low,49.99,523.0,1366.0,544,125.69
+MED103,N95 Masks Box,General OTC,Low,13.6,122.0,431.0,999,8.81
+MED104,Surgical Gowns 250mg,General OTC,Low,18.65,132.0,775.0,899,111.53

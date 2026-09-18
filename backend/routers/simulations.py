@@ -1,8 +1,13 @@
 """
 Single-SKU and Macro Network Stress Testing Simulation routes.
+
+The single-SKU simulator is branch-scoped like every other endpoint: a branch login
+is always forced to its own branch_id via resolve_branch_scope(), regardless of what
+it sends. The macro network stress-tester is inherently cross-branch (it models the
+whole hospital network at once) and is therefore restricted to the admin account.
 """
 from dataclasses import asdict
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 import numpy as np
 import pandas as pd
 
@@ -10,24 +15,27 @@ from data_loader import STORE
 from schemas import SimulateRequest, NetworkSimulateRequest
 from risk_scoring import CRITICALITY_WEIGHT
 from state import get_all_risk
+from auth import get_current_user, require_admin, resolve_branch_scope
 
 router = APIRouter(prefix="/api/simulate", tags=["simulations"])
 
 
 @router.post("")
-def simulate(req: SimulateRequest):
+def simulate(req: SimulateRequest, user: dict = Depends(get_current_user)):
     from forecasting import forecast_demand as _fd
     from risk_scoring import monte_carlo_stockout_probability, expiry_waste_projection, CRITICALITY_WEIGHT
+
+    effective_branch = resolve_branch_scope(user, req.branch_id)
 
     med = STORE.medicine_row(req.medicine_id)
     if med is None:
         raise HTTPException(status_code=404, detail="Medicine not found")
-    inv_df = STORE.inventory_for(req.medicine_id, req.branch_id)
+    inv_df = STORE.inventory_for(req.medicine_id, effective_branch)
     if inv_df.empty:
         raise HTTPException(status_code=404, detail="No inventory row for this medicine/branch")
     inv = inv_df.iloc[0]
 
-    series = STORE.daily_consumption(req.medicine_id, branch_id=req.branch_id)
+    series = STORE.daily_consumption(req.medicine_id, branch_id=effective_branch)
     forecast = _fd(series, horizon_days=21)
 
     scaled_p50 = [v * req.demand_multiplier for v in forecast.p50]
@@ -60,7 +68,7 @@ def simulate(req: SimulateRequest):
 
     return {
         "medicine_id": req.medicine_id,
-        "branch_id": req.branch_id,
+        "branch_id": effective_branch,
         "scenario": {"demand_multiplier": req.demand_multiplier, "lead_time_extra_days": req.lead_time_extra_days},
         "simulated_stockout_probability_pct": stockout_prob,
         "simulated_composite_risk_score": round(composite, 1),
@@ -71,12 +79,13 @@ def simulate(req: SimulateRequest):
 
 
 @router.post("/network")
-def simulate_network_stress(req: NetworkSimulateRequest):
+def simulate_network_stress(req: NetworkSimulateRequest, user: dict = Depends(require_admin)):
     """
     Macro scenario stress-tester: simulates pandemic surges or supplier disruptions
     across the full hospital network without modifying underlying database.
+    Cross-branch by design, so restricted to the network admin account.
     """
-    all_risk = get_all_risk()
+    all_risk = get_all_risk(branch_id=None)
     stressed_risks = []
     
     crit_before = sum(1 for r in all_risk if r.risk_tier == "Critical")

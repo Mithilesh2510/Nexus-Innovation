@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Supply Watch — Healthcare Supply Chain Intelligence 2.0</title>
+<title>MedStock IQ — Healthcare Supply Chain Intelligence 2.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,6 +12,36 @@
 </head>
 <body>
 
+<!-- Login Overlay -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+      </div>
+      <div class="brand-title">MedStock IQ<span class="version-tag">2.0 PRO</span></div>
+    </div>
+    <p class="login-sub">Sign in to your facility's supply chain workspace.</p>
+
+    <form id="loginForm">
+      <label class="login-label" for="loginUsername">Username</label>
+      <input type="text" id="loginUsername" autocomplete="username" placeholder="e.g. citygeneral" required>
+
+      <label class="login-label" for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" autocomplete="current-password" placeholder="••••••••" required>
+
+      <div class="login-error" id="loginError" style="display:none;"></div>
+
+      <button type="submit" class="login-submit" id="loginSubmitBtn">Sign In</button>
+    </form>
+
+    <div class="login-footnote">
+    </div>
+  </div>
+</div>
+
+<div id="appRoot" style="display:none;">
+
 <header>
   <div class="brand-wrap">
     <a href="#" class="brand">
@@ -19,7 +49,7 @@
         <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
       </div>
       <div class="brand-title">
-        Supply Watch
+      MedStock IQ
         <span class="version-tag">2.0 PRO</span>
       </div>
     </a>
@@ -38,7 +68,7 @@
     </div>
 
     <select id="branchFilter">
-      <option value="">All Facilities (3 Branches)</option>
+      <option value="">All Facilities</option>
     </select>
 
     <select id="categoryFilter">
@@ -62,6 +92,11 @@
       <svg id="refreshIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
       Sync Engine
     </button>
+
+    <div class="user-pill" id="userPill" title="Click to sign out">
+      <span id="userPillName">—</span>
+      <span id="userPillBranch" style="color:var(--text-dim); font-weight:400;"></span>
+    </div>
   </div>
 </header>
 
@@ -407,9 +442,12 @@
   Built for Healthcare Supply Chain Intelligence · Probabilistic Demand Forecasting &amp; Monte Carlo Risk Architecture · Version 2.0
 </footer>
 
+</div><!-- /#appRoot -->
+
 <!-- Application Scripts -->
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/charts.js"></script>
 <script src="js/modules/ui.js"></script>
 <script src="js/modules/riskTable.js"></script>

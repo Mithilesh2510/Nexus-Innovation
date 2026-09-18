@@ -1,0 +1,8 @@
+event_id,date,medicine_id,event_type,description,magnitude
+EVT001,2026-08-31,MED036,abnormal_usage,Sustained demand surge consistent with a local outbreak pattern,2.61
+EVT002,2026-08-31,MED001,abnormal_usage,Sustained demand surge consistent with a local outbreak pattern,2.36
+EVT003,2026-08-31,MED065,abnormal_usage,Sustained demand surge consistent with a local outbreak pattern,2.07
+EVT004,2026-09-05,MED089,supplier_delay,Supplier reported logistics delay beyond contracted lead time,2.21
+EVT005,2026-09-12,MED072,supplier_delay,Supplier reported logistics delay beyond contracted lead time,2.36
+EVT006,2026-09-16,MED086,supplier_delay,Supplier reported logistics delay beyond contracted lead time,2.45
+EVT007,2026-09-09,MED012,supplier_delay,Supplier reported logistics delay beyond contracted lead time,1.39

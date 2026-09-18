@@ -1,0 +1,45 @@
+file,column,description
+medicines.csv,medicine_id,Unique SKU identifier
+medicines.csv,name,Medicine / consumable display name
+medicines.csv,category,"SKU category (Antibiotics, Blood Products, PPE, etc.)"
+medicines.csv,criticality,Critical / High / Medium / Low — drives service-level target & emergency reserve sizing
+medicines.csv,base_daily_usage,Average daily consumption across all branches (units)
+medicines.csv,reorder_point,Legacy static reorder threshold (kept for comparison to the new system)
+medicines.csv,target_max_stock,Legacy static max-stock threshold
+medicines.csv,shelf_life_days,"Shelf life from manufacture, in days"
+medicines.csv,unit_cost,"Cost per unit, used for budget-constrained procurement optimization"
+branches.csv,branch_id,Unique hospital branch identifier
+branches.csv,name,Branch display name
+branches.csv,type,Main Campus / Satellite
+consumption_history.csv,date,Calendar date of consumption (daily grain)
+consumption_history.csv,medicine_id,FK to medicines.csv
+consumption_history.csv,branch_id,FK to branches.csv
+consumption_history.csv,units_consumed,Units consumed that day at that branch
+inventory_snapshot.csv,medicine_id,FK to medicines.csv
+inventory_snapshot.csv,branch_id,FK to branches.csv
+inventory_snapshot.csv,current_stock,On-hand stock as of snapshot_date
+inventory_snapshot.csv,reserved_units,Stock already earmarked for scheduled procedures/patients
+inventory_snapshot.csv,emergency_reserve,Hard floor that must not be dipped into except in emergencies
+inventory_snapshot.csv,nearest_batch_expiry,Expiry date of the soonest-expiring batch on hand
+inventory_snapshot.csv,snapshot_date,Date this snapshot was taken
+suppliers.csv,supplier_id,Unique supplier identifier
+suppliers.csv,avg_lead_time_days,Mean historical lead time
+suppliers.csv,lead_time_std_days,Std deviation of historical lead time — feeds Monte Carlo simulation
+suppliers.csv,reliability_score,Fraction of orders delivered on-spec and on-time
+procurement_history.csv,order_id,Unique purchase order identifier
+procurement_history.csv,medicine_id,FK to medicines.csv
+procurement_history.csv,supplier_id,FK to suppliers.csv
+procurement_history.csv,order_date,Date the PO was placed
+procurement_history.csv,expected_delivery_date,Contracted/expected delivery date
+procurement_history.csv,actual_delivery_date,Actual delivery date (blank if still PENDING)
+procurement_history.csv,ordered_units,Units ordered
+procurement_history.csv,received_units,"Units actually received (< ordered for PARTIAL, 0 for PENDING)"
+procurement_history.csv,status,DELIVERED / PARTIAL / PENDING
+supply_events.csv,event_id,Unique disruption event id
+supply_events.csv,event_type,abnormal_usage / supplier_delay
+supply_events.csv,magnitude,Severity multiplier of the event
+usage_anomalies.csv,medicine_id,FK to medicines.csv
+usage_anomalies.csv,branch_id,FK to branches.csv
+usage_anomalies.csv,date,Date of the labeled anomalous consumption
+usage_anomalies.csv,multiplier_vs_baseline,How many times baseline usage this day represented
+usage_anomalies.csv,label,Ground-truth label used to validate the EWMA/CUSUM detector

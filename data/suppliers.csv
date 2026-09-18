@@ -1,0 +1,16 @@
+supplier_id,name,avg_lead_time_days,lead_time_std_days,reliability_score
+SUP001,Supplier 01 Ltd.,18.4,4.8,0.97
+SUP002,Supplier 02 Ltd.,13.8,2.6,0.66
+SUP003,Supplier 03 Ltd.,20.3,9.1,0.93
+SUP004,Supplier 04 Ltd.,8.6,3.1,0.78
+SUP005,Supplier 05 Ltd.,10.0,3.4,0.89
+SUP006,Supplier 06 Ltd.,6.8,2.1,0.95
+SUP007,Supplier 07 Ltd.,6.0,2.4,0.99
+SUP008,Supplier 08 Ltd.,13.0,5.2,0.99
+SUP009,Supplier 09 Ltd.,5.5,1.6,0.86
+SUP010,Supplier 10 Ltd.,4.4,1.7,0.92
+SUP011,Supplier 11 Ltd.,11.4,2.2,0.82
+SUP012,Supplier 12 Ltd.,19.3,3.2,0.77
+SUP013,Supplier 13 Ltd.,8.3,2.5,0.99
+SUP014,Supplier 14 Ltd.,11.9,2.1,0.77
+SUP015,Supplier 15 Ltd.,18.2,6.2,0.89
