@@ -93,13 +93,14 @@ The frontend is architected to operate with **zero build steps** (no Webpack, Vi
                                                                                    │
 ┌──────────────────────────────────────────────────────────────────────────────────┼───────────────┐
 │                                                                                  ▼               │
-│                                 4. HEALTHCARE DATA LAKE (data/*.csv)                             │
+│                            4. RELATIONAL DATABASE & DATA LAKE (MySQL 8.0 / CSV)                  │
 │                                                                                                  │
-│   [medicines.csv]        [inventory_snapshot.csv]   [consumption_history.csv]                    │
-│   104 SKUs, Criticality  Batch Expiries, Reserves   365 Days × 3 Hospital Branches               │
-│                                                                                                  │
-│   [suppliers.csv]        [procurement_history.csv]  [usage_anomalies.csv]                        │
-│   Reliability & Delays   500 Historical Orders      Labeled Ground Truth Outbreak Events         │
+│   [MySQL: supply_chain_db]                   [Standalone SQL Dump & CSV Flat Lake]               │
+│   • branches            • suppliers          • data/schema.sql (DDL + Indexes)                   │
+│   • medicines           • consumption_hist   • data/supply_chain.sql (Full Data Dump)            │
+│   • inventory_snapshot  • procurement_hist   • data/*.csv (Seed Data Lake & Resilient Fallback)  │
+│   • supply_events       • usage_anomalies    • scripts/migrate_to_mysql.py (Auto-Migrator)       │
+│   • dispatched_transfers (Audit Ledger)                                                          │
 └──────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -134,10 +135,11 @@ flowchart TD
         StateCache --> LLMGateway["Multi-Provider LLM Narration\n(llm_explain.py: OpenAI/Claude/Groq)"]
     end
 
-    subgraph DataLake ["4. Data Layer (data/*.csv)"]
-        DataLoader["Data Loader\n(data_loader.py)"]
+    subgraph Database ["4. Database Layer (MySQL 8.0 / CSV Fallback)"]
+        DataLoader["Data Loader & DB Client\n(data_loader.py + db.py)"]
         ForecastEngine & RiskEngine & AnomalyEngine & OptimizerEngine --> DataLoader
-        DataLoader --> CSVs[("Hospital CSV Data Lake\n• medicines.csv\n• inventory_snapshot.csv\n• consumption_history.csv\n• suppliers.csv\n• procurement_history.csv")]
+        DataLoader --> MySQL[("MySQL Database\nsupply_chain_db\n(Primary Source of Truth)")]
+        DataLoader -.-> CSVs[("Hospital CSV Data Lake\n• medicines.csv\n• inventory_snapshot.csv\n• consumption_history.csv\n(Resilient Fallback)")]
     end
 ```
 
@@ -274,7 +276,49 @@ Right-click `frontend/index.html` inside VS Code and select **"Open with Live Se
 
 ---
 
-## 8. Connecting to the Backend (Phase 2 Preview)
+---
+
+## 8. MySQL Database Setup & Migration
+
+The system operates with a dedicated MySQL 8.0 relational database (`supply_chain_db`) for transactional persistence and query performance.
+
+### Database Architecture & Tables
+- **`branches`**: Hospital locations and facility types (BR01, BR02, BR03).
+- **`suppliers`**: Vendor profiles, lead-time distribution parameters, and reliability ratings.
+- **`medicines`**: SKU master catalogue with clinical criticality tiers, reorder thresholds, and unit costs.
+- **`consumption_history`**: Daily consumption records across branches indexed by date and medicine SKU.
+- **`inventory_snapshot`**: Stock levels, earmarked procedure reserves, emergency floor reserves, and batch expiration dates.
+- **`procurement_history`**: Historical and live purchase orders, delivery dates, and fulfillment statuses.
+- **`supply_events`**: Macro demand surges, outbreak patterns, and supplier disruption events.
+- **`usage_anomalies`**: Ground-truth anomaly labels used to validate the EWMA/CUSUM detector.
+- **`dispatched_transfers`**: Audit ledger tracking live inter-facility lateral transfers in transit.
+
+### Configuration (`backend/.env`)
+Configure your MySQL connection parameters in `backend/.env`:
+```env
+USE_MYSQL=true
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=root
+MYSQL_DATABASE=supply_chain_db
+```
+
+### Running the Migration & Seed Script
+To create the database, execute DDL schema definitions, and ingest all data:
+```bash
+python scripts/migrate_to_mysql.py
+```
+This also outputs a complete, standalone SQL dump file:
+- [`data/schema.sql`](file:///c:/Users/logeshwaran/OneDrive/Documents/supply-chain-intelligence/supply-chain/data/schema.sql) — Clean DDL definitions with foreign keys and index constraints.
+- [`data/supply_chain.sql`](file:///c:/Users/logeshwaran/OneDrive/Documents/supply-chain-intelligence/supply-chain/data/supply_chain.sql) — Full SQL dump ready for direct CLI or GUI import (`mysql -u root -p < data/supply_chain.sql`).
+
+### Resilient Fallback Mode
+If MySQL is offline or disabled (`USE_MYSQL=false`), the backend's resilient data loader (`data_loader.py`) automatically falls back to local CSV files without interrupting API operations.
+
+---
+
+## 9. Connecting to the Backend (Phase 2 Preview)
 
 Once the backend is added in the next phase, start the FastAPI service:
 ```bash
@@ -294,7 +338,7 @@ const CONFIG = {
 
 ---
 
-## 9. License & Acknowledgments
+## 10. License & Acknowledgments
 
 - **Domain**: AI in Healthcare & Supply Chain Resilience
 - **Design System**: Tailored dark-mode control room aesthetic inspired by clinical telemetry monitors and mission-critical operations consoles.
